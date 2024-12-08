@@ -8,6 +8,7 @@ pub struct UrlEntry {
     pub original_url: String,
     pub created_at: String,
     pub clicks: u32,
+    pub expires_at: String,
 }
 
 pub fn create_short_url(original_url: &str) -> Result<String> {
@@ -15,9 +16,9 @@ pub fn create_short_url(original_url: &str) -> Result<String> {
 
     let short_code = generate_short_code();
 
-    // TODO add expiration
+    let ttl = 24 * 60 * 60; // 1 day
     let store = UrlStore::new()?;
-    store.create_url(&short_code, original_url, None)?;
+    store.create_url(&short_code, original_url, Some(ttl))?;
 
     Ok(short_code)
 }

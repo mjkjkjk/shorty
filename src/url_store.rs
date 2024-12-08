@@ -24,16 +24,20 @@ impl UrlStore {
         Ok(UrlStore { conn })
     }
 
-    pub fn create_url(
-        &self,
-        short_code: &str,
-        original_url: &str,
-        ttl: Option<u32>,
-    ) -> Result<()> {
-        self.conn.execute(
-            "INSERT INTO urls (short_code, original_url) VALUES (?1, ?2)",
-            params![short_code, original_url],
-        )?;
+    pub fn create_url(&self, short_code: &str, original_url: &str, ttl: Option<u32>) -> Result<()> {
+        if ttl.is_some() {
+            self.conn.execute(
+                "INSERT INTO urls (short_code, original_url, expires_at) 
+                 VALUES (?1, ?2, datetime(CURRENT_TIMESTAMP, '+' || ?3 || ' seconds'))",
+                params![short_code, original_url, ttl.unwrap()],
+            )?;
+        } else {
+            self.conn.execute(
+                "INSERT INTO urls (short_code, original_url) VALUES (?1, ?2)",
+                params![short_code, original_url],
+            )?;
+        }
+
         Ok(())
     }
 
@@ -59,7 +63,7 @@ impl UrlStore {
     pub fn list_urls(&self) -> Result<Vec<UrlEntry>> {
         let mut stmt = self
             .conn
-            .prepare("SELECT short_code, original_url, created_at, clicks FROM urls")?;
+            .prepare("SELECT short_code, original_url, created_at, clicks, expires_at FROM urls")?;
 
         let url_iter = stmt.query_map([], |row| {
             Ok(UrlEntry {
@@ -67,6 +71,7 @@ impl UrlStore {
                 original_url: row.get(1)?,
                 created_at: row.get(2)?,
                 clicks: row.get(3)?,
+                expires_at: row.get(4)?,
             })
         })?;
 

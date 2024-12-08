@@ -23,7 +23,10 @@ async fn main() -> Result<()> {
             cli::Commands::List => {
                 let urls = shortener::list_urls()?;
                 for url in urls {
-                    println!("{}: {}", url.short_code, url.original_url);
+                    println!(
+                        "{}: {} (expires at {})",
+                        url.short_code, url.original_url, url.expires_at
+                    );
                 }
             }
         },
