@@ -12,8 +12,8 @@ async fn main() -> Result<()> {
 
     match cli.command {
         Some(cmd) => match cmd {
-            cli::Commands::Create { url } => {
-                let short_url = shortener::create_short_url(&url)?;
+            cli::Commands::Create { url, short_code } => {
+                let short_url = shortener::create_short_url(&url, short_code)?;
                 println!("Created short URL: {}", short_url);
             }
             cli::Commands::Retrieve { short_code } => {

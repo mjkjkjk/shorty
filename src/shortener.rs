@@ -11,10 +11,10 @@ pub struct UrlEntry {
     pub expires_at: String,
 }
 
-pub fn create_short_url(original_url: &str) -> Result<String> {
+pub fn create_short_url(original_url: &str, desired_short_code: Option<String>) -> Result<String> {
     // TODO validate url
 
-    let short_code = generate_short_code();
+    let short_code = desired_short_code.unwrap_or(generate_short_code());
 
     let ttl = 24 * 60 * 60; // 1 day
     let store = UrlStore::new()?;

@@ -9,7 +9,12 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    Create { url: String },
-    Retrieve { short_code: String },
+    Create {
+        url: String,
+        short_code: Option<String>,
+    },
+    Retrieve {
+        short_code: String,
+    },
     List,
 }
