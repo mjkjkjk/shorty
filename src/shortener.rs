@@ -1,5 +1,6 @@
 use crate::url_store::UrlStore;
 use anyhow::Result;
+use url::Url;
 use uuid::Uuid;
 
 #[derive(Debug)]
@@ -12,7 +13,10 @@ pub struct UrlEntry {
 }
 
 pub fn create_short_url(original_url: &str, desired_short_code: Option<String>) -> Result<String> {
-    // TODO validate url
+    let url = Url::parse(original_url);
+    if url.is_err() {
+        return Err(anyhow::anyhow!("Invalid URL"));
+    }
 
     let short_code = desired_short_code.unwrap_or(generate_short_code());
 
