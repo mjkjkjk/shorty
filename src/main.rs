@@ -6,7 +6,6 @@ use anyhow::Result;
 use axum::{extract::Path, response::Redirect, routing::get, Router};
 use clap::Parser;
 use cli::Cli;
-use std::net::SocketAddr;
 use tower_http::trace::TraceLayer;
 
 #[tokio::main]
@@ -37,6 +36,7 @@ async fn main() -> Result<()> {
                 println!("  create <url> [short_code] - Create a short URL");
                 println!("  retrieve <short_code> - Retrieve the original URL");
                 println!("  list - List all short URLs");
+                println!("  serve - Start the web server");
                 println!("  info - Show this help message");
             }
             cli::Commands::Serve { port } => {
