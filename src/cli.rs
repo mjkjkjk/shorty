@@ -16,6 +16,9 @@ pub enum Commands {
     Retrieve {
         short_code: String,
     },
+    Serve {
+        port: Option<u16>,
+    },
     List,
     Info,
 }

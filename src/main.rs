@@ -3,8 +3,11 @@ mod shortener;
 mod url_store;
 
 use anyhow::Result;
+use axum::{extract::Path, response::Redirect, routing::get, Router};
 use clap::Parser;
 use cli::Cli;
+use std::net::SocketAddr;
+use tower_http::trace::TraceLayer;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -36,6 +39,18 @@ async fn main() -> Result<()> {
                 println!("  list - List all short URLs");
                 println!("  info - Show this help message");
             }
+            cli::Commands::Serve { port } => {
+                let app = Router::new()
+                    .route("/:short_code", get(handle_redirect))
+                    .route("/", get(handle_root))
+                    .layer(TraceLayer::new_for_http());
+
+                let listener =
+                    tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port.unwrap_or(3000)))
+                        .await
+                        .unwrap();
+                axum::serve(listener, app).await.unwrap();
+            }
         },
         None => {
             println!("No command specified. Use 'info' for usage information.");
@@ -43,4 +58,20 @@ async fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+async fn handle_redirect(
+    Path(short_code): Path<String>,
+) -> Result<Redirect, (axum::http::StatusCode, String)> {
+    match shortener::retrieve_url(&short_code) {
+        Ok(original_url) => Ok(Redirect::permanent(&original_url)),
+        Err(_) => Err((
+            axum::http::StatusCode::NOT_FOUND,
+            "Short URL not found".to_string(),
+        )),
+    }
+}
+
+async fn handle_root() -> &'static str {
+    "Welcome to URL Shortener. Use /{short_code} to access a shortened URL."
 }
