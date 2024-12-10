@@ -29,10 +29,16 @@ async fn main() -> Result<()> {
                     );
                 }
             }
+            cli::Commands::Info => {
+                println!("Available commands:");
+                println!("  create <url> [short_code] - Create a short URL");
+                println!("  retrieve <short_code> - Retrieve the original URL");
+                println!("  list - List all short URLs");
+                println!("  info - Show this help message");
+            }
         },
         None => {
-            // TODO add actual help
-            println!("No command specified. Use --help for usage information.");
+            println!("No command specified. Use 'info' for usage information.");
         }
     }
 

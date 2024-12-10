@@ -17,4 +17,5 @@ pub enum Commands {
         short_code: String,
     },
     List,
+    Info,
 }
